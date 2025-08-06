@@ -1,5 +1,9 @@
 //dashboard.js          colocar las primeras lineas del auth.js                                                                                                                                                                                                                                                               const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const SUPABASE_URL = "https://kenoxpuvgauvjtvunmkp.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtlbm94cHV2Z2F1dmp0dnVubWtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MDUwMDYsImV4cCI6MjA3MDA4MTAwNn0.8q7fNkPBjleZZQmXdQQnY0SvnHdorMnQGWJ7jAi8h8M";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 async function agregarEstudiante() {
   const nombre = document.getElementById("nombre").value;
   const correo = document.getElementById("correo").value;
