@@ -33,7 +33,8 @@ function renderEstudianteItem(est) {
   li.innerHTML = `
     <span>${est.nombre} (${est.clase})</span>
     <button class="icon-btn" title="Eliminar" aria-label="Eliminar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      <svg viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2"
            stroke-linecap="round" stroke-linejoin="round">
         <polyline points="3 6 5 6 21 6"></polyline>
         <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
@@ -42,14 +43,12 @@ function renderEstudianteItem(est) {
       </svg>
     </button>
   `;
-
-  // click eliminar
   li.querySelector(".icon-btn").addEventListener("click", () => {
     eliminarEstudiante(est.id, est.nombre);
   });
-
   return li;
 }
+
 
 // --- Cargar lista (opcional: filtra por usuario logueado) ---
 async function cargarEstudiantes() {
@@ -70,21 +69,35 @@ async function cargarEstudiantes() {
 }
 
 // --- Eliminar con confirmación ---
+function escapeHtml(str){ const p=document.createElement('div'); p.textContent=str; return p.innerHTML; }
+
 async function eliminarEstudiante(id, nombre) {
-  const ok = confirm(`¿Deseas eliminar el registro de "${nombre}"?`);
-  if (!ok) return;
+  const result = await Swal.fire({
+    title: 'Eliminar estudiante',
+    html: `¿Deseas eliminar el registro de <b>${escapeHtml(nombre)}</b>?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    reverseButtons: true,
+    confirmButtonColor: '#dc2626',
+    cancelButtonColor: '#6b7280'
+  });
+  if (!result.isConfirmed) return;
 
   const { data: { user } } = await client.auth.getUser();
   const { error } = await client
-    .from("estudiantes")
+    .from('estudiantes')
     .delete()
-    .eq("id", id)
-    .eq("user_id", user.id); // seguridad (opcional pero recomendado)
+    .eq('id', id)
+    .eq('user_id', user.id); // seguridad opcional
 
-  if (error) return alert("Error al eliminar: " + error.message);
-
-  alert("Registro eliminado.");
-  cargarEstudiantes();
+  if (error) {
+    Swal.fire({ title:'Error', text:error.message, icon:'error' });
+  } else {
+    Swal.fire({ title:'Eliminado', text:'Registro eliminado correctamente.', icon:'success', timer:1500, showConfirmButton:false });
+    cargarEstudiantes();
+  }
 }
 
 cargarEstudiantes();
