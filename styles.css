@@ -78,3 +78,15 @@ img {
   margin-top: 5px;
   border-radius: 6px;
 }
+
+#lista-estudiantes li{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px; margin:10px 0; background:#f6f6f6;
+  border-radius:10px; list-style:none;
+}
+.icon-btn{
+  background:transparent; border:0; cursor:pointer; padding:6px;
+  border-radius:8px;
+}
+.icon-btn:hover{ background:#ffeaea; }
+.icon-btn svg{ width:20px; height:20px; }

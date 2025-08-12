@@ -1,60 +1,90 @@
-//dashboard.js          colocar las primeras lineas del auth.js                                                                                                                                                                                                                                                               const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+// --- Supabase (corrige orden y evita duplicados) ---
 const SUPABASE_URL = "https://kenoxpuvgauvjtvunmkp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtlbm94cHV2Z2F1dmp0dnVubWtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MDUwMDYsImV4cCI6MjA3MDA4MTAwNn0.8q7fNkPBjleZZQmXdQQnY0SvnHdorMnQGWJ7jAi8h8M";
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// --- Agregar (corrige limpieza de inputs) ---
 async function agregarEstudiante() {
-    const nombre = document.getElementById("nombre").value;
-    const correo = document.getElementById("correo").value;
-    const clase = document.getElementById("clase").value;
+  const nombreInput = document.getElementById("nombre");
+  const correoInput = document.getElementById("correo");
+  const claseInput  = document.getElementById("clase");
 
-    const {
-        data: { user },
-        error: userError,
-    } = await client.auth.getUser();
+  const nombre = nombreInput.value.trim();
+  const correo = correoInput.value.trim();
+  const clase  = claseInput.value.trim();
 
-    if (userError || !user) {
-        alert("No estás autenticado.");
-        return;
-    }
+  const { data: { user }, error: userError } = await client.auth.getUser();
+  if (userError || !user) { alert("No estás autenticado."); return; }
 
-    const { error } = await client.from("estudiantes").insert({
-        nombre,
-        correo,
-        clase,
-        user_id: user.id,
-    });
+  const { error } = await client.from("estudiantes").insert({
+    nombre, correo, clase, user_id: user.id,
+  });
 
-    if (error) {
-        alert("Error al agregar: " + error.message);
-    } else {
-        alert("Estudiante agregado");
-        nombre.value = "";
-        correo.value = "";
-        clase.value = "";
-        cargarEstudiantes();
-    }
+  if (error) return alert("Error al agregar: " + error.message);
+
+  nombreInput.value = ""; correoInput.value = ""; claseInput.value = "";
+  alert("Estudiante agregado");
+  cargarEstudiantes();
 }
 
+// --- Render de un <li> con botón de eliminar ---
+function renderEstudianteItem(est) {
+  const li = document.createElement("li");
+  li.innerHTML = `
+    <span>${est.nombre} (${est.clase})</span>
+    <button class="icon-btn" title="Eliminar" aria-label="Eliminar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+        <path d="M10 11v6"></path><path d="M14 11v6"></path>
+        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+      </svg>
+    </button>
+  `;
+
+  // click eliminar
+  li.querySelector(".icon-btn").addEventListener("click", () => {
+    eliminarEstudiante(est.id, est.nombre);
+  });
+
+  return li;
+}
+
+// --- Cargar lista (opcional: filtra por usuario logueado) ---
 async function cargarEstudiantes() {
-    const { data, error } = await client
-        .from("estudiantes")  //Nombre de BD
-        .select("*")
-        .order("created_at", { ascending: false });
+  const { data: { user }, error: userError } = await client.auth.getUser();
+  if (userError || !user) { alert("No estás autenticado."); return; }
 
-    if (error) {
-        alert("Error al cargar estudiantes: " + error.message);
-        return;
-    }
+  const { data, error } = await client
+    .from("estudiantes")
+    .select("*")
+    .eq("user_id", user.id) // quita esta línea si quieres ver todos
+    .order("created_at", { ascending: false });
 
-    const lista = document.getElementById("lista-estudiantes");
-    lista.innerHTML = "";
-    data.forEach((est) => {
-        const item = document.createElement("li");
-        item.textContent = `${est.nombre} (${est.clase})`;
-        lista.appendChild(item);
-    });
+  if (error) return alert("Error al cargar estudiantes: " + error.message);
+
+  const lista = document.getElementById("lista-estudiantes");
+  lista.innerHTML = "";
+  data.forEach(est => lista.appendChild(renderEstudianteItem(est)));
+}
+
+// --- Eliminar con confirmación ---
+async function eliminarEstudiante(id, nombre) {
+  const ok = confirm(`¿Deseas eliminar el registro de "${nombre}"?`);
+  if (!ok) return;
+
+  const { data: { user } } = await client.auth.getUser();
+  const { error } = await client
+    .from("estudiantes")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id); // seguridad (opcional pero recomendado)
+
+  if (error) return alert("Error al eliminar: " + error.message);
+
+  alert("Registro eliminado.");
+  cargarEstudiantes();
 }
 
 cargarEstudiantes();
