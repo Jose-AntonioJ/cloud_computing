@@ -1,83 +1,190 @@
-body {
-  background-color: #f9f9f9;
-  font-family: 'Segoe UI', sans-serif;
-  display: flex;
-  justify-content: center;
-  padding: 40px;
-  margin: 0;
+/* ======= Paleta (mint) ======= */
+:root{
+  --mint-50:#f2fbf9;
+  --mint-100:#e8f9f5;
+  --mint-200:#d3f3ec;
+  --mint-300:#beede3;
+  --mint-400:#A3E4D7; /* principal */
+  --mint-500:#7fd6c6;
+  --mint-600:#55c3af;
+  --mint-700:#2fa690;
+  --mint-800:#1e8c78;
+  --mint-900:#166b5b;
+
+  --bg:#f7faf9;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --white:#ffffff;
+  --shadow:0 10px 25px rgba(0,0,0,.07);
 }
 
-.contenedor {
-  background-color: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-  width: 100%;
-  max-width: 600px;
+/* ======= Base ======= */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1000px 600px at 10% -10%, var(--mint-100), transparent 70%),
+    radial-gradient(900px 500px at 110% 10%, var(--mint-50), transparent 60%),
+    var(--bg);
+  padding:24px;
 }
 
-h1, h2 {
-  color: #333;
-  margin-top: 20px;
-  text-align: center;
+/* ======= Layout ======= */
+.container{max-width:1100px;margin:0 auto}
+.toolbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;margin-bottom:18px;
+}
+h1{
+  margin:0;
+  font-size:clamp(22px,2.5vw,32px);
+  font-weight:800;
+  letter-spacing:.2px;
+  background:linear-gradient(90deg,var(--mint-800),var(--mint-600));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.grid{
+  display:grid; gap:20px;
+  grid-template-columns:1fr;
+}
+@media (min-width:900px){
+  .grid{ grid-template-columns:1fr 1fr; }
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 15px;
+/* ======= Card ======= */
+.card{
+  position:relative;
+  background:var(--white);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:18px 18px 16px;
+  border:1px solid var(--mint-200);
+  overflow:hidden;
+}
+.card::before{
+  content:"";
+  position:absolute; inset:0 0 auto 0; height:6px;
+  background:linear-gradient(90deg, var(--mint-400), var(--mint-600));
+}
+.card h2{
+  margin:6px 0 14px;
+  font-size:clamp(18px,2vw,22px);
+  font-weight:800;
+  color:var(--mint-900);
 }
 
-input, select {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+/* ======= Form ======= */
+.form-grid{
+  display:grid; gap:12px;
+  grid-template-columns:1fr;
+}
+@media (min-width:680px){
+  .form-grid{ grid-template-columns:1fr 1fr 1fr; }
+}
+input, select{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid var(--mint-200);
+  border-radius:12px;
+  font-size:15px;
+  outline:none;
+  background:#fff;
+  transition:border .2s, box-shadow .2s;
+}
+input::file-selector-button{
+  border:0; padding:8px 12px; border-radius:10px;
+  background:var(--mint-400); color:#0b3b34; font-weight:600;
+  margin-right:10px; cursor:pointer;
+}
+input:focus, select:focus{
+  border-color:var(--mint-500);
+  box-shadow:0 0 0 4px color-mix(in oklab, var(--mint-400) 35%, white);
+}
+.label{ display:block; margin:2px 0 8px; color:var(--muted); font-size:13px; }
+.upload-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+.actions-row{ margin-top:10px; display:flex; gap:10px; }
+
+/* ======= Buttons ======= */
+.btn{
+  appearance:none; border:0; cursor:pointer;
+  padding:10px 16px; border-radius:12px;
+  font-weight:700; letter-spacing:.2px; font-size:15px;
+  transition:transform .06s ease, filter .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.btn:active{ transform:translateY(1px) }
+
+.btn-primary{
+  color:#0b3b34; background:linear-gradient(180deg,var(--mint-400), var(--mint-500));
+  box-shadow:0 6px 16px rgba(31,181,156,.28);
+  border:1px solid var(--mint-500);
+}
+.btn-primary:hover{ filter:brightness(1.05) }
+
+.btn-danger{
+  color:#fff; background:linear-gradient(180deg,#ef4444,#dc2626);
+  box-shadow:0 6px 16px rgba(239,68,68,.28);
+  border:1px solid #dc2626;
+}
+.btn-danger:hover{ filter:brightness(1.05) }
+
+/* ======= Lists ======= */
+.list{ list-style:none; padding:0; margin:0 }
+.list li{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px; margin:10px 0;
+  background:var(--mint-50);
+  border:1px solid var(--mint-200);
+  border-radius:14px;
 }
 
-button {
-  padding: 10px 15px;
-  background-color: #1f8ef1;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 10px;
+/* ======= Icon buttons (editar / borrar) ======= */
+.actions{ display:flex; gap:8px }
+.icon-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid transparent; padding:8px; border-radius:12px;
+  cursor:pointer; transition:transform .12s, background .2s, box-shadow .2s, border-color .2s;
+  background:var(--mint-100); color:var(--mint-800);
 }
+.icon-btn:hover{ transform:scale(1.06); background:var(--mint-200); }
+.icon-btn:active{ transform:scale(0.98); }
+.icon-btn svg{ width:22px; height:22px; display:block }
 
-button:hover {
-  background-color: #0c71c3;
+/* Variantes */
+.icon-edit{
+  background:color-mix(in oklab, var(--mint-200) 70%, white);
+  color:var(--mint-900); border-color:var(--mint-300);
 }
+.icon-edit:hover{ background:var(--mint-200) }
 
-.cerrar-btn {
-  background-color: #e74c3c;
-  display: block;
-  width: 30%;
+.icon-delete{
+  background:#fee2e2; color:#dc2626; border-color:#fecaca;
 }
+.icon-delete:hover{ background:#fecaca }
 
-.cerrar:hover {
-  background-color: #c0392b;
-}
+/* ======= Imagenes de lista de archivos ======= */
+img{ display:block; margin-top:6px; border-radius:8px }
 
-ul {
-  list-style: none;
-  padding-left: 0;
-}
+/* ======= Fix hover cerrar ======= */
+.cerrar-btn:hover{ filter:brightness(1.05) }
 
-ul li {
-  margin: 10px 0;
-  padding: 8px;
-  background-color: #f3f3f3;
-  border-radius: 6px;
+/* ======= SweetAlert dentro del tema ======= */
+.swal2-popup{
+  border-radius:16px !important;
+  border:1px solid var(--mint-200);
 }
-
-img {
-  display: block;
-  margin-top: 5px;
-  border-radius: 6px;
+.swal2-confirm{
+  background:linear-gradient(180deg,var(--mint-400),var(--mint-500)) !important;
+  color:#0b3b34 !important; font-weight:800 !important; border-radius:12px !important;
 }
+.swal2-cancel{
+  background:#e5e7eb !important; color:#111827 !important; border-radius:12px !important;
+}
+.swal-form{ text-align:left }
+.swal-form label{ font-size:12px; color:#374151; margin:6px 0 -6px 4px; display:block }
 
 #lista-estudiantes li{
   display:flex; align-items:center; justify-content:space-between;
