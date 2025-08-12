@@ -30,20 +30,38 @@ async function agregarEstudiante() {
 // --- Render de un <li> con botón de eliminar ---
 function renderEstudianteItem(est) {
   const li = document.createElement("li");
+  li.dataset.id = est.id;
   li.innerHTML = `
-    <span>${est.nombre} (${est.clase})</span>
-    <button class="icon-btn" title="Eliminar" aria-label="Eliminar">
-      <svg viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-        <path d="M10 11v6"></path><path d="M14 11v6"></path>
-        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-      </svg>
-    </button>
+    <span class="estudiante-texto"></span>
+    <div class="actions">
+      <!-- Editar -->
+      <button class="icon-btn icon-edit" title="Editar" aria-label="Editar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+      </button>
+
+      <!-- Eliminar -->
+      <button class="icon-btn icon-delete" title="Eliminar" aria-label="Eliminar">
+        <svg viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+          <path d="M10 11v6"></path><path d="M14 11v6"></path>
+          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+        </svg>
+      </button>
+    </div>
   `;
-  li.querySelector(".icon-btn").addEventListener("click", () => {
+  li.querySelector(".estudiante-texto").textContent = `${est.nombre} (${est.clase})`;
+
+  li.querySelector(".icon-edit").addEventListener("click", () => {
+    editarEstudiante(est, li);
+  });
+  li.querySelector(".icon-delete").addEventListener("click", () => {
     eliminarEstudiante(est.id, est.nombre);
   });
   return li;
@@ -67,6 +85,79 @@ async function cargarEstudiantes() {
   lista.innerHTML = "";
   data.forEach(est => lista.appendChild(renderEstudianteItem(est)));
 }
+
+// --- Editar estudiante ---
+function escapeHtml(str){ const p=document.createElement('div'); p.textContent=str ?? ''; return p.innerHTML; }
+
+async function editarEstudiante(est, li) {
+  const { value: formValues } = await Swal.fire({
+    title: 'Editar estudiante',
+    html: `
+      <div class="swal-form">
+        <label>Nombre</label>
+        <input id="swal-nombre" class="swal2-input" placeholder="Nombre">
+        <label>Correo</label>
+        <input id="swal-correo" type="email" class="swal2-input" placeholder="correo@dominio.com">
+        <label>Clase</label>
+        <input id="swal-clase" class="swal2-input" placeholder="Ej. 23 B">
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Guardar cambios',
+    cancelButtonText: 'Cancelar',
+    reverseButtons: true,
+    confirmButtonColor: '#1d4ed8',   // azul
+    cancelButtonColor: '#6b7280',
+    didOpen: () => {
+      // set values de forma segura
+      document.getElementById('swal-nombre').value = est.nombre || '';
+      document.getElementById('swal-correo').value = est.correo || '';
+      document.getElementById('swal-clase').value  = est.clase  || '';
+    },
+    preConfirm: () => {
+      const nombre = document.getElementById('swal-nombre').value.trim();
+      const correo = document.getElementById('swal-correo').value.trim();
+      const clase  = document.getElementById('swal-clase').value.trim();
+
+      if (!nombre) return Swal.showValidationMessage('El nombre es obligatorio');
+      if (correo && !/^\S+@\S+\.\S+$/.test(correo)) {
+        return Swal.showValidationMessage('Correo inválido');
+      }
+      return { nombre, correo, clase };
+    }
+  });
+
+  if (!formValues) return; // cancelado
+
+  // UI optimista
+  const span = li.querySelector('.estudiante-texto');
+  const prev = span.textContent;
+  span.textContent = `${formValues.nombre} (${formValues.clase})`;
+
+  const { data: { user } } = await client.auth.getUser();
+  const { data, error } = await client
+    .from('estudiantes')
+    .update({
+      nombre: formValues.nombre,
+      correo: formValues.correo,
+      clase:  formValues.clase
+    })
+    .eq('id', est.id)
+    .eq('user_id', user.id)   // quítalo si un admin edita a todos
+    .select('id');            // <- confirma filas afectadas
+
+  if (error || !data || data.length === 0) {
+    // revertir UI si falló
+    span.textContent = prev;
+    return Swal.fire({ title:'Error', text: error?.message || 'No se actualizó el registro.', icon:'error' });
+  }
+
+  Swal.fire({ title:'Guardado', text:'Cambios aplicados correctamente.', icon:'success', timer:1500, showConfirmButton:false });
+  // refresco por si cambia algo más
+  cargarEstudiantes();
+}
+
 
 // --- Eliminar con confirmación ---
 function escapeHtml(str){ const p=document.createElement('div'); p.textContent=str; return p.innerHTML; }
