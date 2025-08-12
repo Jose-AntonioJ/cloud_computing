@@ -97,38 +97,3 @@ img {
 .icon-btn:active{ transform:scale(0.98); }
 .icon-btn svg{ width:24px; height:24px; display:block; }
 
-/* Lista + acciones */
-#lista-estudiantes li{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:12px 16px; margin:10px 0; background:#f6f6f6;
-  border-radius:12px; list-style:none;
-}
-#lista-estudiantes .actions{ display:flex; gap:8px; }
-
-/* Botones de ícono */
-.icon-btn{
-  display:inline-flex; align-items:center; justify-content:center;
-  border:1px solid transparent; padding:8px; border-radius:10px;
-  cursor:pointer; transition:transform .12s, background .2s, box-shadow .2s;
-}
-.icon-btn svg{ width:22px; height:22px; display:block; }
-.icon-btn:hover{ transform:scale(1.06); }
-.icon-btn:active{ transform:scale(0.98); }
-
-/* Editar: azul */
-.icon-edit{
-  background:#dbeafe; color:#1d4ed8; border-color:#bfdbfe;
-}
-.icon-edit:hover{ background:#bfdbfe; }
-
-/* Eliminar: rojo */
-.icon-delete{
-  background:#fee2e2; color:#dc2626; border-color:#fecaca;
-}
-.icon-delete:hover{ background:#fecaca; }
-
-/* Ajustes visuales de formulario dentro del modal */
-.swal-form{ text-align:left; }
-.swal-form label{
-  font-size:12px; color:#374151; margin:6px 0 -6px 4px; display:block;
-}
